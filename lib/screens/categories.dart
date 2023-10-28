@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:meals/data/dummy_data.dart';
 import 'package:meals/models/category.dart';
+import 'package:meals/models/meal.dart';
 import 'package:meals/screens/meals.dart';
 import 'package:meals/widgets/category_grid_item.dart';
 
 class CategoriesScreen extends StatelessWidget {
-  const CategoriesScreen({super.key});
+  const CategoriesScreen({
+    super.key,
+    required this.onToggleFavorite,
+    required this.availableMeals,
+  });
 
-  void _selectedCategory(
-    BuildContext context,
-    Category category,
-  ) {
-    final filteredMeals = dummyMeals
+  final void Function(Meal meal) onToggleFavorite;
+  final List<Meal> availableMeals;
+
+  void _selectedCategory(BuildContext context, Category category) {
+    final filteredMeals = availableMeals
         .where(
           (meal) => meal.categories.contains(category.id),
         )
@@ -21,6 +26,7 @@ class CategoriesScreen extends StatelessWidget {
         builder: (ctx) => MealsScreen(
           title: category.title,
           meals: filteredMeals,
+          onToggleFavorite: onToggleFavorite,
         ),
       ),
     );
@@ -28,35 +34,30 @@ class CategoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pick your category'),
+    return GridView(
+      padding: const EdgeInsets.all(24),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 3 / 2,
+        mainAxisSpacing: 20,
+        crossAxisSpacing: 20,
       ),
-      body: GridView(
-        padding: const EdgeInsets.all(24),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 3 / 2,
-          mainAxisSpacing: 20,
-          crossAxisSpacing: 20,
-        ),
-        children: [
-          // for (final category in availableCategories)
-          //   CategoryGridItem(
-          //     category: category,
-          //   ),
-          ...availableCategories
-              .map(
-                (category) => CategoryGridItem(
-                  category: category,
-                  onSelectCategory: () {
-                    _selectedCategory(context, category);
-                  },
-                ),
-              )
-              .toList(),
-        ],
-      ),
+      children: [
+        // for (final category in availableCategories)
+        //   CategoryGridItem(
+        //     category: category,
+        //   ),
+        ...availableCategories
+            .map(
+              (category) => CategoryGridItem(
+                category: category,
+                onSelectCategory: () {
+                  _selectedCategory(context, category);
+                },
+              ),
+            )
+            .toList(),
+      ],
     );
   }
 }
